@@ -1,0 +1,7 @@
+# depslib dependency file v1.0
+1669499869 source:c:\users\v2020\desktop\arvore\main.c
+	<stdio.h>
+	<conio.h>
+	<stdlib.h>
+	<locale.h>
+
