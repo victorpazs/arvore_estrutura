@@ -2,39 +2,41 @@
 #include <conio.h>
 #include <stdlib.h>
 #include <locale.h>
+#include <string.h> //necessário para strcpy - função que adiciona a string de pergunta para a pergunta do nodo
 
 
-char perguntas[10][1000] = { "Você pretende comer sozinho?", "É vegetariano ou vegano?", "O grupo é de mais de 5 pessoas?", "O grupo é de mais de 5 pessoas?" };
 
 
 typedef struct {
-       int resposta;
-       int position;
+       char resposta[100], pergunta[1000];
 } INFORMACAO;
 
 
 typedef struct arv {
-       INFORMACAO info;   // pergunta feita ao usuário
-       struct arv* subdireita;  // ponteiro para o nodo da direita
-       struct arv* subesquerda;  // ponteiro para o nodo da esquerda
+       INFORMACAO info;   // pergunta e resposta
+       struct arv* subd;  // ponteiro para o nodo da direita
+       struct arv* sube;  // ponteiro para o nodo da esquerda
 } ARVORE;
 
-void criarArvore( ARVORE** r );  // inicializa �rvore com NULL
-void imprimirPergunta( ARVORE* aux, int indice ); // visualiza��o da �rvore em tela, todos os registros
-void insereFolha( ARVORE** r, int resp ); // insere folha na subárvore da pergunta - esquerda pra sim, direita pra não
-void cria_folha( ARVORE* aux ); // cria a folha para a proxima pergunta;
+void criarArvore(ARVORE** r);  // inicializa �rvore vazia
+
+void inserePerguntas(ARVORE** r); //insere todas as perguntas da árvore
+
 
 int main()
 {
-    int op;       // op��o do menu
+    int op = -1;       // op��o do menu
     ARVORE* r, *p; // declara��o da ARVORE, vari�vel do tipo ARVORE = ARVORE de ponteiros
 
     setlocale(LC_ALL, "Portuguese");
-
-    while( 1 ){
+    criarArvore(&r);
+    inserePerguntas(&r);
+    while( op != 0 ){
          printf( "\n /---------------------------------------------------/" );
          printf( "\n Menu do usuário" );
          printf( "\n [1] Começar");
+         printf( "\n [2] Ver histórico");
+         printf( "\n [3] Limpar histórico");
 		 printf( "\n [0] Para sair do programa" );
          printf( "\n /---------------------------------------------------/" );
          printf( "\n Opcao: " );
@@ -42,7 +44,7 @@ int main()
 
         switch( op ) {
            case 1:   // cria a arvore
-                   criarArvore( &r );
+                   percorrePerguntas( &r );
                    break;
            case 0:  // t�rmino do programa
                    exit( 1 );
@@ -59,65 +61,125 @@ int main()
  return 0;
 }
 
-
-//funcao que imprime as perguntas da arvore
-void imprimirPergunta( ARVORE* aux, int indice ){
-    int opt = 0;
-    if( aux != NULL ){              // verifica se a raiz � diferente de vazio
-        printf( "\n Pergunta: \n");
-        printf("%s", perguntas[indice]);
-        printf( "\n");
-        printf( "\n[1] - SIM");
-        printf( "\n[2] - NÃO");
-        printf( "\nOpção:");
-        scanf("%d", &opt);
-        if (opt == 1 || opt == 2){
-            aux->info.resposta = opt;
-        } else {
-            printf("Opção inválida!");
-            exit(1);
-        }
-        insereFolha( &aux, opt );
-        system( "cls" );
-        if (opt == 1){
-          imprimirPergunta( aux->subesquerda, indice + 1 );
-        } else if (opt == 2){
-          imprimirPergunta( aux->subdireita, indice + 2 );
-        }
-
-
-    }
-    else
-       printf("\nNenhuma pergunta a se exibir!");
-}
-
-
 //função que cria a arvore
 void criarArvore( ARVORE** r ){
     *r = NULL; // arvore criada, raiz nao aponta
-    system( "cls" );
-    imprimirPergunta( &r, 0 );
-}
-
-void insereFolha( ARVORE** p, int resp ){
-      if( *p == NULL ){                                     // se n�o achou o c�digo, insere
-         ARVORE* no = ( ARVORE * ) malloc ( sizeof( ARVORE )); // aloca novo espaco em mem�ria
-         no->subdireita= NULL;                                 // inicializa sub�rvore da direita
-         no->subesquerda= NULL;								 // inicializa sub�rvore da esquerda
-         *p= no;                                         // anterior aponta para novo registro
-         printf( "\n Registro inserido!" );
-   }else{
-         if ( resp == 1 )                   // verifica se c�digo a ser inserido � menor que o valor do registro para qual o p aponta
-              insereFolha( &(*p)->subesquerda, resp );      // anda com o ponteiro p para a esquerda, pois o c�digo procurado � menor
-         else insereFolha( &(*p)->subdireita, resp ); // anda com o ponteiro p para a direita, pois o c�digo procurado � maior
-
-		 }
 
 }
 
-void cria_folha( ARVORE* aux )
-{
-    aux->subdireita = NULL;    // n�o aponta
-    aux->subesquerda = NULL;    // n�o aponta
+void inserePerguntas( ARVORE** r ) {
+
+    //perguntas do lado direito da árvore
+    ARVORE* pd1 = ( ARVORE * ) malloc ( sizeof( ARVORE )); // aloca novo espaco em mem�ria
+    strcpy(pd1->info.pergunta, "Você gosta de doces?"); // cola a pergunta no
+    pd1->subd= NULL;                                 // inicializa sub�rvore da direita
+    pd1->sube= NULL;								 // inicializa sub�rvore da esquerda
+
+
+    //pd1 = sim
+    ARVORE* pd2 = ( ARVORE * ) malloc ( sizeof( ARVORE ));
+    strcpy(pd2->info.pergunta, "Que tal uma sobremesa gelada?");
+    pd1->sube = pd2;
+    pd2->subd= NULL;
+    pd2->sube= NULL;
+
+    //pd1 = nao
+    ARVORE* rpd1 = ( ARVORE * ) malloc ( sizeof( ARVORE ));
+    strcpy(rpd1->info.pergunta, "Gostaria de uma salada de frutas?");
+    pd1->subd = rpd1;
+    rpd1->subd= NULL;
+    rpd1->sube= NULL;
+
+    //pd2 = sim
+    ARVORE* rpd2 = ( ARVORE * ) malloc ( sizeof( ARVORE ));
+    strcpy(rpd2->info.pergunta, "Gostaria de um sorvete?");
+    pd2->sube = rpd2;
+    rpd2->subd= NULL;
+    rpd2->sube= NULL;
+
+    //pd2 = sim
+    ARVORE* pd3 = ( ARVORE * ) malloc ( sizeof( ARVORE ));
+    strcpy(pd3->info.pergunta, "O que você acha de uma sobremesa quente?");
+    pd2->subd = pd3;
+    pd3->subd= NULL;
+    pd3->sube= NULL;
+
+
+    //pd3 = sim
+    ARVORE* rpd3sim = ( ARVORE * ) malloc ( sizeof( ARVORE ));
+    strcpy(rpd3sim->info.pergunta, "Gostaria de um brownie?");
+    pd3->sube = rpd3sim;
+    rpd3sim->subd= NULL;
+    rpd3sim->sube= NULL;
+
+    //pd3 = nao
+    ARVORE* rpd3nao = ( ARVORE * ) malloc ( sizeof( ARVORE ));
+    strcpy(rpd3nao->info.pergunta, "O que acha de comprar um petit gateau (peti gatô)?");
+    pd3->subd = rpd3nao;
+    rpd3nao->subd= NULL;
+    rpd3nao->sube= NULL;
+
+    // lado esquerdo da árvore
+
+    ARVORE* pe1 = ( ARVORE * ) malloc ( sizeof( ARVORE ));
+    strcpy(pe1->info.pergunta, "Gosta de lanches fritos?");
+    pe1->subd= NULL;
+    pe1->sube= NULL;
+
+    //pe1 = sim
+    ARVORE* rpe1 = ( ARVORE * ) malloc ( sizeof( ARVORE ));
+    strcpy(rpe1->info.pergunta, "O que você acha de uma porção de batata frita?");
+    pe1->sube = rpe1;
+    rpe1->subd= NULL;
+    rpe1->sube= NULL;
+
+    //pe1 = nao
+    ARVORE* pe2 = ( ARVORE * ) malloc ( sizeof( ARVORE ));
+    strcpy(pe2->info.pergunta, "Você gosta de lanches assados?");
+    pe1->subd = pe2;
+    pe2->subd= NULL;
+    pe2->sube= NULL;
+
+    //pe2 = sim
+    ARVORE* rpe2sim = ( ARVORE * ) malloc ( sizeof( ARVORE ));
+    strcpy(rpe2sim->info.pergunta, "Uma pizza seria do seu agrado?");
+    pe2->sube = rpe2sim;
+    rpe2sim->subd= NULL;
+    rpe2sim->sube= NULL;
+
+    //pe2 = nao
+    ARVORE* rpe2nao = ( ARVORE * ) malloc ( sizeof( ARVORE ));
+    strcpy(rpe2nao->info.pergunta, "Que tal um sanduíche?");
+    pe2->subd = rpe2nao;
+    rpe2nao->subd= NULL;
+    rpe2nao->sube= NULL;
+
+
+    //raiz pergunta inicial
+    ARVORE* perguntaRaiz = ( ARVORE * ) malloc ( sizeof( ARVORE ));
+    strcpy(perguntaRaiz->info.pergunta, "Você gostaria de um salgado?");
+    perguntaRaiz->subd= pd1;
+    perguntaRaiz->sube= pe1;
+    *r = perguntaRaiz;
+}
+
+void percorrePerguntas(ARVORE** aux) {
+    while (aux->subd != NULL && aux->sube != NULL){
+        printf("\nPergunta: %s", aux->info.pergunta);
+        printf("\n\nResposta: ");
+        scanf("%s", &aux->info.resposta);
+        if (aux->info.resposta == "sim" || aux->info.resposta == "Sim" || aux->info.resposta == "SIM"){
+            percorrePerguntas(aux->sube);
+        } else if (aux->info.resposta == "nao" || aux->info.resposta == "Nao" || aux->info.resposta == "NAO" || aux->info.resposta == "não" || aux->info.resposta == "NãO" || aux->info.resposta == "NÃO"){
+            percorrePerguntas(aux->sube);
+        } else {
+            criarArvore(&r);
+            printf("\nOpção inválida!");
+            printf("\nPressione ENTER para voltar ao menu!");
+            getchar();
+            system("cls");
+
+        }
+    }
 
 }
