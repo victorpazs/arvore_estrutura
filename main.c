@@ -8,7 +8,7 @@
 
 
 typedef struct {
-       char resposta[100], pergunta[1000];
+       char resposta[3], pergunta[1000];
 } INFORMACAO;
 
 
@@ -21,6 +21,8 @@ typedef struct arv {
 void criarArvore(ARVORE** r);  // inicializa �rvore vazia
 
 void inserePerguntas(ARVORE** r); //insere todas as perguntas da árvore
+
+void minusculo(char s1[], char s2[]);
 
 
 int main()
@@ -44,7 +46,7 @@ int main()
 
         switch( op ) {
            case 1:   // cria a arvore
-                   percorrePerguntas( &r );
+                   percorrePerguntas( r );
                    break;
            case 0:  // t�rmino do programa
                    exit( 1 );
@@ -163,23 +165,32 @@ void inserePerguntas( ARVORE** r ) {
     *r = perguntaRaiz;
 }
 
-void percorrePerguntas(ARVORE** aux) {
-    while (aux->subd != NULL && aux->sube != NULL){
-        printf("\nPergunta: %s", aux->info.pergunta);
-        printf("\n\nResposta: ");
-        scanf("%s", &aux->info.resposta);
-        if (aux->info.resposta == "sim" || aux->info.resposta == "Sim" || aux->info.resposta == "SIM"){
-            percorrePerguntas(aux->sube);
-        } else if (aux->info.resposta == "nao" || aux->info.resposta == "Nao" || aux->info.resposta == "NAO" || aux->info.resposta == "não" || aux->info.resposta == "NãO" || aux->info.resposta == "NÃO"){
-            percorrePerguntas(aux->sube);
-        } else {
-            criarArvore(&r);
-            printf("\nOpção inválida!");
-            printf("\nPressione ENTER para voltar ao menu!");
-            getchar();
-            system("cls");
+void percorrePerguntas(ARVORE* aux) {
+    system("cls");
+    while (aux->info.resposta == NULL){
+        char resposta[10];
+        printf("\n======================\n");
+        printf("Pergunta: %s", aux->info.pergunta);
+        printf("\n======================\n");
+        printf("\nResposta: ");
+        scanf("%s", resposta);
 
+
+        if (strcmp(resposta, "sim") == 0 || strcmp(resposta, "Sim") == 0 || strcmp(resposta, "SIM") == 0){
+            strcpy(aux->info.resposta, resposta);
+            percorrePerguntas(aux->sube);
+        } else if (strcmp(resposta, "não") == 0 || strcmp(resposta, "NÃO") == 0 || strcmp(resposta, "Não") == 0 || strcmp(resposta, "nao") == 0 || strcmp(resposta, "n") == 0 ){
+            strcpy(aux->info.resposta, resposta);
+            percorrePerguntas(aux->subd);
+        } else {
+            printf("\nOpção inválida!");
+            printf("\nPressione ENTER para tentar novamente!");
+            getchar();
+            percorrePerguntas(aux->sube);
         }
     }
+    printf("%s",aux->info.resposta);
 
 }
+
+
