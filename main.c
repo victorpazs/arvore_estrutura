@@ -22,19 +22,26 @@ void criarArvore(ARVORE** r);  // inicializa �rvore vazia
 
 void inserePerguntas(ARVORE** r); //insere todas as perguntas da árvore
 
-void minusculo(char s1[], char s2[]);
+void printaHistorico(ARVORE* aux);
+
+void percorrePerguntas(ARVORE** p);
+
 
 
 int main()
 {
     int op = -1;       // op��o do menu
-    ARVORE* r, *p; // declara��o da ARVORE, vari�vel do tipo ARVORE = ARVORE de ponteiros
 
-    setlocale(LC_ALL, "Portuguese");
+    ARVORE* r, *p; // declara��o da ARVORE, vari�vel do tipo ARVORE = ARVORE de ponteiros
+    setlocale(LC_ALL, "");
     criarArvore(&r);
     inserePerguntas(&r);
+
     while( op != 0 ){
+
+         system("cls");
          printf( "\n /---------------------------------------------------/" );
+         printf("\n%d", r);
          printf( "\n Menu do usuário" );
          printf( "\n [1] Começar");
          printf( "\n [2] Ver histórico");
@@ -45,15 +52,33 @@ int main()
          scanf("%d", &op);
 
         switch( op ) {
-           case 1:   // cria a arvore
-                   percorrePerguntas( r );
-                   break;
-           case 0:  // t�rmino do programa
-                   exit( 1 );
-                   break;
-           default:
-                   printf( "\n Digite uma opcao!" );
-                   break;
+           case 1:   // faz as perguntas e grava as respostas do lead
+                percorrePerguntas(&r);
+                break;
+         case 2:   // mostra o historico pro lead
+             if (strcmp(r->info.resposta, "") == 0){
+                system("cls");
+                printf("Nenhum histórico a ser exibido");
+                printf("\nPressione ENTER para voltar ao menu");
+                getch();
+             } else {
+                system("cls");
+                printaHistorico( r );
+                printf("\nPressione ENTER para voltar ao menu");
+                getch();
+             }
+               break;
+         case 3:
+            limpaHistorico( r );
+            criarArvore(&r);
+            inserePerguntas(&r);
+            break;
+        case 0:  // t�rmino do programa
+            exit( 1 );
+            break;
+        default:
+           printf( "\n Digite uma opcao!" );
+           break;
         } // troca as opções no menu
 
         fflush( stdin ); // limpa buffer
@@ -71,12 +96,12 @@ void criarArvore( ARVORE** r ){
 
 void inserePerguntas( ARVORE** r ) {
 
+
     //perguntas do lado direito da árvore
     ARVORE* pd1 = ( ARVORE * ) malloc ( sizeof( ARVORE )); // aloca novo espaco em mem�ria
     strcpy(pd1->info.pergunta, "Você gosta de doces?"); // cola a pergunta no
     pd1->subd= NULL;                                 // inicializa sub�rvore da direita
     pd1->sube= NULL;								 // inicializa sub�rvore da esquerda
-
 
     //pd1 = sim
     ARVORE* pd2 = ( ARVORE * ) malloc ( sizeof( ARVORE ));
@@ -84,6 +109,7 @@ void inserePerguntas( ARVORE** r ) {
     pd1->sube = pd2;
     pd2->subd= NULL;
     pd2->sube= NULL;
+
 
     //pd1 = nao
     ARVORE* rpd1 = ( ARVORE * ) malloc ( sizeof( ARVORE ));
@@ -94,12 +120,12 @@ void inserePerguntas( ARVORE** r ) {
 
     //pd2 = sim
     ARVORE* rpd2 = ( ARVORE * ) malloc ( sizeof( ARVORE ));
-    strcpy(rpd2->info.pergunta, "Gostaria de um sorvete?");
+    strcpy(rpd2->info.resposta, "Gostaria de um sorvete?");
     pd2->sube = rpd2;
     rpd2->subd= NULL;
     rpd2->sube= NULL;
 
-    //pd2 = sim
+    //pd2 = não
     ARVORE* pd3 = ( ARVORE * ) malloc ( sizeof( ARVORE ));
     strcpy(pd3->info.pergunta, "O que você acha de uma sobremesa quente?");
     pd2->subd = pd3;
@@ -160,37 +186,58 @@ void inserePerguntas( ARVORE** r ) {
     //raiz pergunta inicial
     ARVORE* perguntaRaiz = ( ARVORE * ) malloc ( sizeof( ARVORE ));
     strcpy(perguntaRaiz->info.pergunta, "Você gostaria de um salgado?");
+    strcpy(perguntaRaiz->info.resposta, "");
     perguntaRaiz->subd= pd1;
     perguntaRaiz->sube= pe1;
     *r = perguntaRaiz;
 }
 
-void percorrePerguntas(ARVORE* aux) {
-    system("cls");
-    while (aux->info.resposta == NULL){
+void percorrePerguntas(ARVORE** p) {
+    if (*p != NULL){
+        system("cls");
         char resposta[10];
         printf("\n======================\n");
-        printf("Pergunta: %s", aux->info.pergunta);
+        printf("Pergunta: %s", (*p)->info.pergunta);
         printf("\n======================\n");
         printf("\nResposta: ");
-        scanf("%s", resposta);
-
-
-        if (strcmp(resposta, "sim") == 0 || strcmp(resposta, "Sim") == 0 || strcmp(resposta, "SIM") == 0){
-            strcpy(aux->info.resposta, resposta);
-            percorrePerguntas(aux->sube);
+        scanf("%s", &resposta);
+        if (strcmp(resposta, "sim") == 0 || strcmp(resposta, "Sim") == 0 || strcmp(resposta, "SIM") == 0 || strcmp(resposta, "s") == 0){
+            strcpy((*p)->info.pergunta, (*p)->info.pergunta);
+            strcpy((*p)->info.resposta, resposta);
+            percorrePerguntas(&(*p)->sube);
         } else if (strcmp(resposta, "não") == 0 || strcmp(resposta, "NÃO") == 0 || strcmp(resposta, "Não") == 0 || strcmp(resposta, "nao") == 0 || strcmp(resposta, "n") == 0 ){
-            strcpy(aux->info.resposta, resposta);
-            percorrePerguntas(aux->subd);
+            strcpy((*p)->info.pergunta, (*p)->info.pergunta);
+            strcpy((*p)->info.resposta, resposta);
+            percorrePerguntas(&(*p)->subd);
         } else {
             printf("\nOpção inválida!");
             printf("\nPressione ENTER para tentar novamente!");
-            getchar();
-            percorrePerguntas(aux->sube);
+            getch();
+            percorrePerguntas(&(*p));
         }
     }
-    printf("%s",aux->info.resposta);
-
 }
 
+void printaHistorico(ARVORE* aux) {
+   if( aux != NULL ){
+        printf("\n======================\n");
+        printf("Pergunta: %s", aux->info.pergunta);
+        printf("\nResposta: %s", aux->info.resposta);
+        printf("\n======================\n");
+if (strcmp(aux->info.resposta, "sim") == 0 || strcmp(aux->info.resposta, "Sim") == 0 || strcmp(aux->info.resposta, "SIM") == 0 || strcmp(aux->info.resposta, "s") == 0){
+            printaHistorico(aux->sube);
+        } else if (strcmp(aux->info.resposta, "não") == 0 || strcmp(aux->info.resposta, "NÃO") == 0 || strcmp(aux->info.resposta, "Não") == 0 || strcmp(aux->info.resposta, "nao") == 0 || strcmp(aux->info.resposta, "n") == 0 ){
+            printaHistorico(aux->subd);
+    }
+
+}
+}
+
+void limpaHistorico(ARVORE* a){
+    if (a != NULL) {
+    limpaHistorico(a->subd);
+    limpaHistorico(a->sube);
+    free(a);
+}
+}
 
