@@ -41,7 +41,6 @@ int main()
 
          system("cls");
          printf( "\n /---------------------------------------------------/" );
-         printf("\n%d", r);
          printf( "\n Menu do usuário" );
          printf( "\n [1] Começar");
          printf( "\n [2] Ver histórico");
@@ -53,7 +52,14 @@ int main()
 
         switch( op ) {
            case 1:   // faz as perguntas e grava as respostas do lead
+               if (strcmp(r->info.resposta, "") == 0){
                 percorrePerguntas(&r);
+               } else {
+                    limpaHistorico( r );
+                    criarArvore(&r);
+                    inserePerguntas(&r);
+                    percorrePerguntas(&r);
+               }
                 break;
          case 2:   // mostra o historico pro lead
              if (strcmp(r->info.resposta, "") == 0){
@@ -193,14 +199,16 @@ void inserePerguntas( ARVORE** r ) {
 }
 
 void percorrePerguntas(ARVORE** p) {
+    char resposta[4];
+
     if (*p != NULL){
         system("cls");
-        char resposta[10];
         printf("\n======================\n");
         printf("Pergunta: %s", (*p)->info.pergunta);
         printf("\n======================\n");
         printf("\nResposta: ");
-        scanf("%s", &resposta);
+        scanf("%s.3", &resposta);
+
         if (strcmp(resposta, "sim") == 0 || strcmp(resposta, "Sim") == 0 || strcmp(resposta, "SIM") == 0 || strcmp(resposta, "s") == 0){
             strcpy((*p)->info.pergunta, (*p)->info.pergunta);
             strcpy((*p)->info.resposta, resposta);
@@ -224,7 +232,7 @@ void printaHistorico(ARVORE* aux) {
         printf("Pergunta: %s", aux->info.pergunta);
         printf("\nResposta: %s", aux->info.resposta);
         printf("\n======================\n");
-if (strcmp(aux->info.resposta, "sim") == 0 || strcmp(aux->info.resposta, "Sim") == 0 || strcmp(aux->info.resposta, "SIM") == 0 || strcmp(aux->info.resposta, "s") == 0){
+    if (strcmp(aux->info.resposta, "sim") == 0 || strcmp(aux->info.resposta, "Sim") == 0 || strcmp(aux->info.resposta, "SIM") == 0 || strcmp(aux->info.resposta, "s") == 0){
             printaHistorico(aux->sube);
         } else if (strcmp(aux->info.resposta, "não") == 0 || strcmp(aux->info.resposta, "NÃO") == 0 || strcmp(aux->info.resposta, "Não") == 0 || strcmp(aux->info.resposta, "nao") == 0 || strcmp(aux->info.resposta, "n") == 0 ){
             printaHistorico(aux->subd);
