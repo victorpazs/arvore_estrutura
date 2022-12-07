@@ -8,7 +8,7 @@
 
 
 typedef struct {
-       char resposta[3], pergunta[1000];
+       char resposta[10], pergunta[1000];
 } INFORMACAO;
 
 
@@ -41,13 +41,13 @@ int main()
 
          system("cls");
          printf( "\n /---------------------------------------------------/" );
-         printf( "\n Menu do usuário" );
+         printf( "\n Menu\n");
          printf( "\n [1] Começar");
          printf( "\n [2] Ver histórico");
          printf( "\n [3] Limpar histórico");
 		 printf( "\n [0] Para sair do programa" );
          printf( "\n /---------------------------------------------------/" );
-         printf( "\n Opcao: " );
+         printf( "\n Opção: " );
          scanf("%d", &op);
 
         switch( op ) {
@@ -69,8 +69,11 @@ int main()
                 getch();
              } else {
                 system("cls");
+                printf("\n======================\n");
+                printf( "Seu histórico de respostas:");
+                printf("\n======================\n");
                 printaHistorico( r );
-                printf("\nPressione ENTER para voltar ao menu");
+                printf("\n\nPressione ENTER para voltar ao menu");
                 getch();
              }
                break;
@@ -231,7 +234,7 @@ void printaHistorico(ARVORE* aux) {
         printf("\n======================\n");
         printf("Pergunta: %s", aux->info.pergunta);
         printf("\nResposta: %s", aux->info.resposta);
-        printf("\n======================\n");
+        printf("\n======================");
     if (strcmp(aux->info.resposta, "sim") == 0 || strcmp(aux->info.resposta, "Sim") == 0 || strcmp(aux->info.resposta, "SIM") == 0 || strcmp(aux->info.resposta, "s") == 0){
             printaHistorico(aux->sube);
         } else if (strcmp(aux->info.resposta, "não") == 0 || strcmp(aux->info.resposta, "NÃO") == 0 || strcmp(aux->info.resposta, "Não") == 0 || strcmp(aux->info.resposta, "nao") == 0 || strcmp(aux->info.resposta, "n") == 0 ){
@@ -248,4 +251,3 @@ void limpaHistorico(ARVORE* a){
     free(a);
 }
 }
-
